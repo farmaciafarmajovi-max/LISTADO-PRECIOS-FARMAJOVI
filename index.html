@@ -127,8 +127,8 @@
   thead th:nth-child(10){ z-index:90; }
 
   /* widths for sticky columns */
-  tbody td:nth-child(1), thead th:nth-child(1){min-width:80px; max-width:80px; overflow:hidden; text-overflow:ellipsis;}
-  tbody td:nth-child(2), thead th:nth-child(2){min-width:32px; max-width:32px; text-align:right;}
+  tbody td:nth-child(1), thead th:nth-child(1){min-width:360px; max-width:360px; overflow:hidden; text-overflow:ellipsis;}
+  tbody td:nth-child(2), thead th:nth-child(2){min-width:140px; max-width:140px; text-align:right;}
 
   @media (max-width: 700px){
     tbody td:nth-child(10), thead th:nth-child(10){left:280px; min-width:140px;}
@@ -150,7 +150,7 @@ thead th:nth-child(4), tbody td:nth-child(4){min-width:250px; max-width:250px; o
         <div class="badge" aria-hidden="true"></div>
         <div>
           <h1>Listado de Precios (14-12-2025)</h1>
-          <div class="subtitle">Tabla completa</div>
+          <div class="subtitle">Tabla completa con <b>todas</b> las columnas del Excel. Nombre y Precio quedan fijos.</div>
         </div>
       </div>
       <div class="controls">
@@ -175,7 +175,7 @@ thead th:nth-child(4), tbody td:nth-child(4){min-width:250px; max-width:250px; o
     </div>
     <div class="stats">
       <div class="chip" id="count_chip">—</div>
-      <div class="chip">Desliza horizontalmente ↔</div>
+      <div class="chip">Desliza horizontalmente ↔ (Nombre y Precio quedan fijos).</div>
     </div>
   </div>
 </header>
