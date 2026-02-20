@@ -101,6 +101,7 @@
             <th>Forma</th>
             <th>Presentación</th>
             <th>Código</th>
+            <th>Nombre</th>
             <th>Precio</th>
             <th>P/U</th>
             <th>Stock</th>
@@ -145,7 +146,8 @@ function renderTable() {
       (item.laboratorio || '') + ' ' +
       (item.bioequivalente || '') + ' ' +
       (item.petitorio_minimo || '') + ' ' +
-      (item.codigo_barra || '')
+      (item.codigo_barra || '') + ' ' +
+      (item.nombre || '')
     ).toLowerCase();
     return query === '' || target.includes(query);
   });
@@ -168,6 +170,8 @@ function renderTable() {
     tr.appendChild(tdContent(highlight(item.presentacion || '', query)));
     // Código de barras
     tr.appendChild(tdContent(highlight(item.codigo_barra || '', query)));
+    // Nombre comercial
+    tr.appendChild(tdContent(highlight(item.nombre || '', query)));
     // Precio total
     tr.appendChild(tdContent(highlight(item.precio || '', query)));
     // Precio por unidad
