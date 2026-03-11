@@ -281,6 +281,22 @@
         font-size:0.9rem;
       }
     }
+    .quick-link{
+  display:inline-block;
+  padding:0.45rem 0.7rem;
+  border:1px solid var(--neutral);
+  border-radius:999px;
+  background:var(--bg);
+  color:var(--text);
+  text-decoration:none;
+  font-size:0.9rem;
+}
+.quick-link:hover{
+  border-color:var(--accent);
+}
+tr.anchor-target{
+  scroll-margin-top: 90px;
+}
   </style>
 </head>
 <body>
@@ -336,7 +352,24 @@ Consulta el precio de medicamentos disponibles en FarmaJovi, farmacia ubicada en
         <div id="summary" class="summary">Mostrando: 0 / 0</div>
         <div class="legend">P/U = precio por unidad de presentación</div>
       </div>
-
+<div id="medicamentos-destacados" style="margin-bottom:1rem;padding:0.85rem;border:1px solid var(--neutral);border-radius:0.5rem;background:var(--card2);">
+  <h2 style="margin:0 0 0.55rem;font-size:1rem;">Medicamentos y productos destacados</h2>
+  <p style="margin:0 0 0.7rem;color:var(--muted);font-size:0.92rem;">
+    Accesos rápidos a algunos medicamentos y suplementos frecuentemente consultados en FarmaJovi.
+  </p>
+  <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+    <a href="#med-paracetamol" class="quick-link">Paracetamol</a>
+    <a href="#med-ibuprofeno" class="quick-link">Ibuprofeno</a>
+    <a href="#med-omeprazol" class="quick-link">Omeprazol</a>
+    <a href="#med-amoxicilina" class="quick-link">Amoxicilina</a>
+    <a href="#med-loratadina" class="quick-link">Loratadina</a>
+    <a href="#med-levonorgestrel" class="quick-link">Levonorgestrel</a>
+    <a href="#med-melatonina" class="quick-link">Melatonina</a>
+    <a href="#med-vitamina-d" class="quick-link">Vitamina D</a>
+    <a href="#med-melena-de-leon" class="quick-link">Melena de León</a>
+    <a href="#med-cordycaps-d" class="quick-link">Cordycaps D</a>
+  </div>
+</div>
       <div class="table-container">
         <table>
           <thead>
@@ -453,65 +486,99 @@ Consulta el precio de medicamentos disponibles en FarmaJovi, farmacia ubicada en
       );
     }
 
-    function renderTable() {
-      const queryRaw = document.getElementById('search').value.trim();
-      const query = normalizeText(queryRaw);
-      const stockFilter = document.getElementById('stockFilter').value;
+function renderTable() {
+  const query = document.getElementById('search').value.trim().toLowerCase();
+  const stockFilter = document.getElementById('stockFilter').value;
 
-      const filtered = rawData.filter((item) => {
-        const stockVal = String(item.stock || '').trim();
-        const stockNum = parseFloat(stockVal.replace(',', '.'));
-        const hasStock = Number.isFinite(stockNum) && stockNum > 0;
+  const filtered = rawData.filter((item) => {
+    const stockVal = (item.stock || '').trim();
+    const hasStock = stockVal !== '' && stockVal !== '0';
+    if (stockFilter === 'con' && !hasStock) return false;
+    if (stockFilter === 'sin' && hasStock) return false;
 
-        if (stockFilter === 'con' && !hasStock) return false;
-        if (stockFilter === 'sin' && hasStock) return false;
+    const target = (
+      (item.pa_nombres || '') + ' ' +
+      (item.pa_dosis || '') + ' ' +
+      (item.forma || '') + ' ' +
+      (item.presentacion || '') + ' ' +
+      (item.laboratorio || '') + ' ' +
+      (item.bioequivalente || '') + ' ' +
+      (item.petitorio_minimo || '') + ' ' +
+      (item.codigo_barra || '') + ' ' +
+      (item.nombre || '')
+    ).toLowerCase();
 
-        const target = buildSearchTarget(item);
-        return query === '' || target.includes(query);
-      });
+    return query === '' || target.includes(query);
+  });
 
-      document.getElementById('summary').textContent = `Mostrando: ${filtered.length} / ${rawData.length}`;
+  document.getElementById('summary').textContent = `Mostrando: ${filtered.length} / ${rawData.length}`;
 
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
 
-      filtered.forEach((item, idx) => {
-        const tr = document.createElement('tr');
+  // IDs SEO / anclas para medicamentos destacados
+  const anchorRules = [
+    { id: 'med-paracetamol', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('paracetamol') },
+    { id: 'med-ibuprofeno', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('ibuprofeno') },
+    { id: 'med-omeprazol', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('omeprazol') },
+    { id: 'med-amoxicilina', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('amoxicilina') },
+    { id: 'med-loratadina', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('loratadina') },
+    { id: 'med-levonorgestrel', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('levonorgestrel') },
+    { id: 'med-melatonina', match: (item) => ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase().includes('melatonina') },
+    { id: 'med-vitamina-d', match: (item) => {
+        const text = ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase();
+        return text.includes('vitamina d') || text.includes('colecalciferol');
+      }
+    },
+    { id: 'med-melena-de-leon', match: (item) => {
+        const text = ((item.pa_nombres || '') + ' ' + (item.nombre || '')).toLowerCase();
+        return text.includes('melena de leon') || text.includes('melena de león');
+      }
+    },
+    { id: 'med-cordycaps-d', match: (item) => ((item.nombre || '') + ' ' + (item.pa_nombres || '')).toLowerCase().includes('cordycaps d') }
+  ];
 
-        function tdContent(html, className = '') {
-          const td = document.createElement('td');
-          td.innerHTML = html;
-          if (className) td.className = className;
-          return td;
-        }
+  const assignedAnchors = new Set();
 
-        const stockVal = String(item.stock || '').trim();
-        const stockNum = parseFloat(stockVal.replace(',', '.'));
-        const hasStock = Number.isFinite(stockNum) && stockNum > 0;
+  filtered.forEach((item, idx) => {
+    const tr = document.createElement('tr');
 
-        const unitPrice = computeUnitPrice(item);
-
-        tr.appendChild(tdContent(String(idx + 1)));
-        tr.appendChild(tdContent(highlight(item.pa_nombres || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.pa_dosis || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.forma || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.presentacion || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.codigo_barra || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.nombre || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(formatCurrency(item.precio || ''), queryRaw), 'price'));
-        tr.appendChild(tdContent(unitPrice !== '' ? highlight(formatCurrency(Math.round(unitPrice)), queryRaw) : '', 'unit-price'));
-        tr.appendChild(tdContent(highlight(item.stock || '', queryRaw), `stock ${hasStock ? 'in-stock' : 'out-stock'}`));
-        tr.appendChild(tdContent(highlight(item.bioequivalente || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.petitorio_minimo || '', queryRaw)));
-        tr.appendChild(tdContent(highlight(item.laboratorio || '', queryRaw)));
-
-        tbody.appendChild(tr);
-      });
+    // Asignar ancla solo a la primera coincidencia de cada producto destacado
+    for (const rule of anchorRules) {
+      if (!assignedAnchors.has(rule.id) && rule.match(item)) {
+        tr.id = rule.id;
+        tr.classList.add('anchor-target');
+        assignedAnchors.add(rule.id);
+        break;
+      }
     }
 
-    document.getElementById('search').addEventListener('input', renderTable);
-    document.getElementById('stockFilter').addEventListener('change', renderTable);
-    document.addEventListener('DOMContentLoaded', renderTable);
-  </script>
+    function tdContent(html) {
+      const td = document.createElement('td');
+      td.innerHTML = html;
+      return td;
+    }
+
+    tr.appendChild(tdContent(idx + 1));
+    tr.appendChild(tdContent(highlight(item.pa_nombres || '', query)));
+    tr.appendChild(tdContent(highlight(item.pa_dosis || '', query)));
+    tr.appendChild(tdContent(highlight(item.forma || '', query)));
+    tr.appendChild(tdContent(highlight(item.presentacion || '', query)));
+    tr.appendChild(tdContent(highlight(item.codigo_barra || '', query)));
+    tr.appendChild(tdContent(highlight(item.nombre || '', query)));
+    tr.appendChild(tdContent(highlight(item.precio || '', query)));
+
+    const unitPrice = computeUnitPrice(item);
+    tr.appendChild(tdContent(highlight(unitPrice, query)));
+
+    tr.appendChild(tdContent(highlight(item.stock || '', query)));
+    tr.appendChild(tdContent(highlight(item.bioequivalente || '', query)));
+    tr.appendChild(tdContent(highlight(item.petitorio_minimo || '', query)));
+    tr.appendChild(tdContent(highlight(item.laboratorio || '', query)));
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
 </body>
 </html>
